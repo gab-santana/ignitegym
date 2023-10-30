@@ -4,7 +4,7 @@ import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
 import { Center, Heading, ScrollView, Skeleton, Text, VStack, useToast } from "native-base";
 import { useState } from 'react'
-import {TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import { FileInfo } from "expo-file-system";
@@ -106,6 +106,7 @@ export function Profile() {
             color={'gray.200'}
             fontSize={'md'}
             mb={2}
+            fontFamily={'heading'}
           >
             Alterar senha
           </Heading>

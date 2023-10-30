@@ -9,7 +9,6 @@ type Props = TouchableOpacityProps & {
 export function ExerciseCard({ ...rest }: Props) {
   return (
     <TouchableOpacity
-
       {...rest}
     >
       <HStack
@@ -34,6 +33,7 @@ export function ExerciseCard({ ...rest }: Props) {
           <Heading
             fontSize={'lg'}
             color={'white'}
+            fontFamily={'heading'}
           >
             Remada unilateral
           </Heading>
@@ -49,12 +49,9 @@ export function ExerciseCard({ ...rest }: Props) {
         <Icon
           as={Entypo}
           name='chevron-thin-right'
-          color={'gray.300'}
-          
+          color={'gray.300'}          
         />
       </HStack>
-
-
     </TouchableOpacity>
   )
 }

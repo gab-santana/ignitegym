@@ -10,13 +10,14 @@ import SeriesSvg from '@assets/series.svg'
 import RepetitionSvg from '@assets/repetitions.svg'
 import { Button } from "@components/Button";
 
-
 export function Exercise() {
+
   const navigation = useNavigation<AppNavigatorRoutesProps>()
 
   function handleGoBack() {
     navigation.goBack()
   }
+
   return (
     <VStack flex={1}>
       <VStack px={8} bg={"gray.600"} pt={12}>
@@ -83,7 +84,7 @@ export function Exercise() {
               justifyContent={'space-around'}
               mb={6}
               mt={5}
-              
+
             >
               <HStack>
                 <SeriesSvg />

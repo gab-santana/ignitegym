@@ -18,7 +18,13 @@ export function HomeHeader() {
 
         <Text color={"gray.100"} fontSize={'md'}>Olá,</Text>
 
-        <Heading color={'gray.100'} fontSize={'md'}>Rodrigo</Heading>
+        <Heading
+          color={'gray.100'}
+          fontSize={'md'}
+          fontFamily={'heading'}
+        >
+          Gabriel
+        </Heading>
       </VStack>
 
       <TouchableOpacity>
@@ -28,7 +34,6 @@ export function HomeHeader() {
           color={'gray.200'}
           size={7}
         />
-
       </TouchableOpacity>
     </HStack>
   )
