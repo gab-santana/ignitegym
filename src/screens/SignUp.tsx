@@ -113,7 +113,7 @@ export function SignUp() {
             name='password_confirm'
             render={({ field: { onChange, value } }) => (
               <Input
-                placeholder='Senha'
+                placeholder='Confirme a senha'
                 secureTextEntry
                 onChangeText={onChange}
                 value={value}
