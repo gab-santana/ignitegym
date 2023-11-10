@@ -13,7 +13,8 @@ import { useAuth } from "@hooks/useAuth";
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { api } from "@services/api";
-import { AppError } from "@utils/AppError";
+import { AppError } from "@utils/AppError"
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png'
 
 const PHOTO_SIZE = 33
 
@@ -56,7 +57,6 @@ const profileSchema = yup.object({
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
-  const [userPhoto, setUserPhoto] = useState('https://github.com/gab-santana.png')
 
   const toast = useToast()
   const { user, updateUserProfile } = useAuth()
@@ -93,8 +93,31 @@ export function Profile() {
             bgColor: 'red.500'
           })
         }
+        const fileExtension = photoSelected.assets[0].uri.split('.').pop()
 
-        setUserPhoto(photoSelected.assets[0].uri)
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.toLowerCase(),
+          uri: photoSelected.assets[0],
+          type: `${photoSelected.assets[0].type}/${fileExtension}`
+        } as any
+
+        const userPhotoUploadForm = new FormData()
+        userPhotoUploadForm.append('avatar', photoFile)
+
+        const avatarUpdatedResponse = await api.patch('/users/avatar', userPhotoUploadForm, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        const userUpdated = user
+        userUpdated.avatar = avatarUpdatedResponse.data.avatar
+        updateUserProfile(userUpdated)
+
+        toast.show({
+          title: 'Foto atualizada!',
+          placement: 'top',
+          bgColor: 'green.500'
+        })
       }
 
 
@@ -133,133 +156,139 @@ export function Profile() {
     } finally {
       setIsUpdating(false)
     }
+  }
 
-    return (
-      <VStack flex={1}>
-        <ScreenHeader title="Perfil" />
+  return (
+    <VStack flex={1}>
+      <ScreenHeader title="Perfil" />
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
-          <Center mt={6} px={10}>
-            {photoIsLoading ? <Skeleton
+      <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
+        <Center mt={6} px={10}>
+          {photoIsLoading ?
+            <Skeleton
               w={PHOTO_SIZE}
               h={PHOTO_SIZE}
               rounded={'full'}
               startColor={'gray.500'}
               endColor={'gray.400'}
-            /> :
-              <UserPhoto
-                source={{ uri: userPhoto }}
-                alt="Foto do usuario"
-                size={PHOTO_SIZE}
-              />}
-
-            <TouchableOpacity
-              onPress={handleUserPhotoSelect}
-            >
-              <Text
-                color={'green.500'}
-                fontWeight={'bold'}
-                fontSize={'md'}
-                mt={2}
-                mb={8}
-              >
-                Alterar foto
-              </Text>
-            </TouchableOpacity>
-
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { value, onChange } }) => (
-                <Input
-                  placeholder="Nome"
-                  bg={'gray.600'}
-                  onChangeText={onChange}
-                  value={value}
-                  errorMessage={errors.name?.message}
-                />
-              )}
             />
+            :
+            <UserPhoto
+              source={
+                user.avatar
+                  ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                  : defaultUserPhotoImg
+              }
+              alt="Foto do usuario"
+              size={PHOTO_SIZE}
+            />}
 
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { value, onChange } }) => (
-                <Input
-                  placeholder="E-mail"
-                  bg={'gray.600'}
-                  isDisabled
-                  onChangeText={onChange}
-                  value={value}
-                />
-              )}
-            />
-
-          </Center>
-          <VStack
-            px={10}
-            mt={12
-            }
+          <TouchableOpacity
+            onPress={handleUserPhotoSelect}
           >
-            <Heading
-              color={'gray.200'}
+            <Text
+              color={'green.500'}
+              fontWeight={'bold'}
               fontSize={'md'}
-              mb={2}
-              fontFamily={'heading'}
+              mt={2}
+              mb={8}
             >
-              Alterar senha
-            </Heading>
+              Alterar foto
+            </Text>
+          </TouchableOpacity>
 
-            <Controller
-              control={control}
-              name="old_password"
-              render={({ field: { onChange } }) => (
-                <Input
-                  bg={"gray.600"}
-                  placeholder="Senha antiga"
-                  secureTextEntry
-                  onChangeText={onChange}
-                />
-              )}
-            />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                placeholder="Nome"
+                bg={'gray.600'}
+                onChangeText={onChange}
+                value={value}
+                errorMessage={errors.name?.message}
+              />
+            )}
+          />
 
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange } }) => (
-                <Input
-                  bg={"gray.600"}
-                  placeholder="Nova senha"
-                  secureTextEntry
-                  onChangeText={onChange}
-                  errorMessage={errors.password?.message}
-                />
-              )}
-            />
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                placeholder="E-mail"
+                bg={'gray.600'}
+                isDisabled
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
 
-            <Controller
-              control={control}
-              name="confirm_password"
-              render={({ field: { onChange } }) => (
-                <Input
-                  bg={"gray.600"}
-                  placeholder="Confirme a nova senha"
-                  secureTextEntry
-                  onChangeText={onChange}
-                  errorMessage={errors.confirm_password?.message}
-                />
-              )}
-            />
+        </Center>
+        <VStack
+          px={10}
+          mt={12
+          }
+        >
+          <Heading
+            color={'gray.200'}
+            fontSize={'md'}
+            mb={2}
+            fontFamily={'heading'}
+          >
+            Alterar senha
+          </Heading>
 
-            <Button
-              title="Atualizar"
-              mt={4}
-              onPress={handleSubmit(handleProfileUpdate)}
-              isLoading={isUpdating}
-            />
-          </VStack>
-        </ScrollView>
-      </VStack >
-    )
-  }
+          <Controller
+            control={control}
+            name="old_password"
+            render={({ field: { onChange } }) => (
+              <Input
+                bg={"gray.600"}
+                placeholder="Senha antiga"
+                secureTextEntry
+                onChangeText={onChange}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange } }) => (
+              <Input
+                bg={"gray.600"}
+                placeholder="Nova senha"
+                secureTextEntry
+                onChangeText={onChange}
+                errorMessage={errors.password?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="confirm_password"
+            render={({ field: { onChange } }) => (
+              <Input
+                bg={"gray.600"}
+                placeholder="Confirme a nova senha"
+                secureTextEntry
+                onChangeText={onChange}
+                errorMessage={errors.confirm_password?.message}
+              />
+            )}
+          />
+
+          <Button
+            title="Atualizar"
+            mt={4}
+            onPress={handleSubmit(handleProfileUpdate)}
+            isLoading={isUpdating}
+          />
+        </VStack>
+      </ScrollView>
+    </VStack >
+  )
 }
