@@ -6,8 +6,9 @@ import { storageAuthTokenSave, storageAuthTokenGet, storageAuthTokenRemove } fro
 
 export type AuthContextDataProps = {
   user: UserDTO
-  signIn: (email: string, password: string) => void
-  signOut: () => void
+  updateUserProfile: (userUpdated: UserDTO) => Promise<void>
+  signIn: (email: string, password: string) => Promise<void>
+  signOut: () => Promise<void>
   isLoadingUserStorage: boolean
 }
 type AuthContextProviderProps = {
@@ -85,8 +86,15 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     } finally {
       setIsLoadingUserStorage(false)
     }
+  }
 
-
+  async function updateUserProfile(userUpdated: UserDTO) {
+    try {
+      setUser(userUpdated)
+      await storageUserSave(userUpdated)
+    } catch (error) {
+      throw error
+    }
   }
 
   useEffect(() => {
@@ -98,7 +106,8 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
         user,
         signIn,
         isLoadingUserStorage,
-        signOut
+        signOut,
+        updateUserProfile
       }}>
       {children}
     </AuthContext.Provider>
